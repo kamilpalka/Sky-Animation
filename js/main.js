@@ -14,6 +14,22 @@ class Sky {
     this.ctx.fillRect(0, 0, this.width, this.height);
   }
 
+  drawOverlayer() {
+    let gradient = this.ctx.createRadialGradient(
+      this.width / 2,
+      this.height / 2,
+      250,
+      this.width / 2,
+      this.height / 2,
+      this.width / 2
+    );
+    gradient.addColorStop(0, "rgba(0,0,0,0)");
+    gradient.addColorStop(1, "rgba(0,0,0,0.9)");
+
+    this.ctx.fillStyle = gradient;
+    this.ctx.fillRect(0, 0, this.width, this.height);
+  }
+
   gnerateStars(count) {
     let stars = [];
 
@@ -23,11 +39,30 @@ class Sky {
         x: Math.random() * this.width,
         y: Math.random() * this.height,
         radius: radius,
-        color: "#fff"
+        orginRadius: radius,
+        color: "#fff",
+        speed: Math.random() + 0.25
       });
     }
 
     this.stars = stars;
+  }
+
+  updateStars() {
+    this.stars.forEach(star => {
+      star.x += star.speed;
+      star.y -= (star.speed * (this.width / 2 - star.x)) / 2350;
+      star.radius = star.orginRadius * (Math.random() / 4 + 0.89);
+
+      if (star.x > this.width + 2 * star.radius) {
+        star.x = -2 * star.radius;
+      }
+    });
+  }
+
+  clearCanvas() {
+    this.ctx.fillStyle = "#000";
+    this.ctx.fillRect(0, 0, this.width, this.height);
   }
 
   drawStars() {
@@ -53,17 +88,19 @@ class Sky {
   }
 
   draw() {
+    this.clearCanvas();
     this.drawStars();
+    this.updateStars();
+    this.drawOverlayer();
     window.requestAnimationFrame(() => this.draw());
   }
 
   run() {
     this.initCanvas();
-    this.gnerateStars(300);
+    this.gnerateStars(400);
     this.draw();
   }
 }
 
 const sky = new Sky(document.querySelector("#canvas"));
-
 sky.run();
